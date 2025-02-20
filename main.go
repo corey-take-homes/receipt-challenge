@@ -41,8 +41,8 @@ type ReceiptResponse struct {
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/receipts/process", receiptHandler)
-	r.HandleFunc("/receipts/{id}/points", pointsHandler)
+	r.HandleFunc("/receipts/process", receiptHandler).Methods("POST")
+	r.HandleFunc("/receipts/{id}/points", pointsHandler).Methods("GET")
 
 	port := ":8080"
 	fmt.Println("Server running on", port)
@@ -63,7 +63,6 @@ func calculatePoints(receipt Receipt) (int, error) {
 			points += 25
 		}
 	}
-
 	points += (len(receipt.Items) / 2) * 5
 
 	for _, item := range receipt.Items {
@@ -109,11 +108,6 @@ func receiptHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func pointsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	vars := mux.Vars(r)
 	id := vars["id"]
 
